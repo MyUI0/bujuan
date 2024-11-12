@@ -3,13 +3,6 @@
 #
 
 list(APPEND FLUTTER_PLUGIN_LIST
-  dynamic_color
-  file_selector_windows
-  permission_handler_windows
-  rive_common
-  screen_retriever
-  url_launcher_windows
-  window_manager
 )
 
 list(APPEND FLUTTER_FFI_PLUGIN_LIST
