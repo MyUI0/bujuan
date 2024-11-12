@@ -12,6 +12,12 @@ import 'common/utils/adaptive_screen_utils.dart';
 main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await _initMain();
+  SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.dark.copyWith(
+    // 沉浸式状态栏（仅安卓）
+    statusBarColor: Colors.transparent,
+    // 沉浸式导航指示器
+    systemNavigationBarColor: Colors.transparent,
+  ));
   final router = GoRouter(
       navigatorKey: rootNavigatorKey, initialLocation: Routes.home, routes: AppPages.pages);
   runApp(Builder(builder: (BuildContext context) {

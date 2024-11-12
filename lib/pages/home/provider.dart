@@ -1,8 +1,6 @@
-import 'package:bujuan_music_api/api/user/entity/user_info_entity.dart';
+import 'package:bujuan_music_api/api/recommend/entity/recommend_resource_entity.dart';
+import 'package:bujuan_music_api/api/top/entity/top_artist_entity.dart';
 import 'package:bujuan_music_api/bujuan_music_api.dart';
-import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../common/request_state.dart';
@@ -12,12 +10,7 @@ class HomeRequestState extends RequestState<HomeData> {
 
   @override
   HomeRequestState copyWith(
-      {bool? isLoading,
-      HomeData? data,
-      bool? isError,
-      bool? isEmpty,
-      TabController? tabControllerFirst,
-      TabController? tabControllerSecond}) {
+      {bool? isLoading, HomeData? data, bool? isError, bool? isEmpty}) {
     return HomeRequestState(
       isLoading: isLoading ?? this.isLoading,
       data: data ?? this.data,
@@ -28,14 +21,18 @@ class HomeRequestState extends RequestState<HomeData> {
 }
 
 class HomeData {
-  final UserInfoEntity? userInfo;
+  final TopArtistEntity? topArtists;
+  final RecommendResourceEntity? recommendResource;
 
-  HomeData({this.userInfo});
+  HomeData({this.topArtists, this.recommendResource});
 
-  HomeData copyWith({UserInfoEntity? userInfo}) {
+  HomeData copyWith({
+    TopArtistEntity? topArtists,
+    RecommendResourceEntity? recommendResource,
+  }) {
     return HomeData(
-      userInfo: userInfo ?? this.userInfo,
-    );
+        topArtists: topArtists ?? this.topArtists,
+        recommendResource: recommendResource ?? this.recommendResource);
   }
 }
 
@@ -44,7 +41,6 @@ class HomeRequestNotifier extends StateNotifier<HomeRequestState> {
   HomeRequestNotifier() : super(HomeRequestState()) {
     _fetchData();
   }
-
 
   refresh({bool showLoading = false}) async {
     await _fetchData(showLoading: showLoading, refresh: true);
@@ -56,30 +52,35 @@ class HomeRequestNotifier extends StateNotifier<HomeRequestState> {
       state = state.copyWith(isLoading: showLoading ?? true);
     }
     try {
-      final userInfo = BujuanMusicManager().userInfo();
-      final requestedList = await Future.wait([userInfo]);
+      final topArtist = BujuanMusicManager().topArtist();
+      final recommendResource = BujuanMusicManager().recommendResource();
+      final requestedList = await Future.wait([topArtist, recommendResource]);
 
-      final userInfoResponse = requestedList[0];
-
-      if (userInfoResponse == null) {
+      final topArtistResponse = requestedList[0] as TopArtistEntity?;
+      final recommendResourceResponse =
+          requestedList[1] as RecommendResourceEntity?;
+      if (topArtistResponse == null) {
         if (refresh ?? false) return;
         throw Exception('加载失败');
       }
-      final homeData = HomeData(userInfo: userInfoResponse);
+      final homeData = HomeData(
+          topArtists: topArtistResponse,
+          recommendResource: recommendResourceResponse);
       state = state.copyWith(isLoading: false, data: homeData, isError: false);
     } catch (e) {
-      state = state.copyWith(isLoading: false, isError: true);
+      // state = state.copyWith(isLoading: false, isError: true);
     }
   }
 }
 
 // 创建 StateNotifierProvider
 final homeProvider =
-    StateNotifierProvider.autoDispose<HomeRequestNotifier, HomeRequestState>((ref) {
-  ref.onDispose(() {
-    if (kDebugMode) {
-      print('首页页面Provider被销毁了========');
-    }
-  });
+    StateNotifierProvider.autoDispose<HomeRequestNotifier, HomeRequestState>(
+        (ref) {
+  // ref.onDispose(() {
+  //   if (kDebugMode) {
+  //     print('首页页面Provider被销毁了========');
+  //   }
+  // });
   return HomeRequestNotifier();
 });

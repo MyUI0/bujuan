@@ -67,7 +67,7 @@ class BaseRequestLoadMoreState<E> {
 // }
 
 
-typedef ChildBuilder<T> = Widget Function(T? data);
+typedef ChildBuilder<T> = Widget Function(T data);
 
 class BaseRequestWidget<T> extends StatelessWidget {
   final ChildBuilder<T> childBuilder;
