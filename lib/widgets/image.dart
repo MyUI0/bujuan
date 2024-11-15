@@ -62,7 +62,7 @@ class ImageView extends StatelessWidget {
     if (url.startsWith("http")) {
       //网络图片
       return CachedNetworkImage(
-        imageUrl: '$url${isCircle ?? false ? '?param=${width}y$height' : ''}',
+        imageUrl: '$url${isCircle ?? false ? '?param=${width?.toInt()}y${height?.toInt()}' : ''}',
         width: width,
         height: height,
         fit: BoxFit.cover,
