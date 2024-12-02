@@ -33,6 +33,10 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
         
+      # 添加代码生成步骤，用于生成可能缺失的.g.dart等代码生成文件（假设使用了相关代码生成工具）
+      - name: Generate code files
+        run: flutter pub run build_runner build
+
       - name: Build iOS IPA (Unsigned)
         run: flutter build ios --release --no-tree-shake-icons --no-codesign
         working-directory:
