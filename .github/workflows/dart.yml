@@ -30,23 +30,25 @@ jobs:
         with:
           xcode-version: latest-stable
 
+      - name: Get current working directory
+        id: get_dir
+        run: |
+          WORKING_DIR=$(pwd)
+          echo "::set-output name=working_dir::$WORKING_DIR"
+
       - name: Install dependencies
         run: flutter pub get
-     
 
       - name: Package.app folder into IPA format
         run: |
-          cd build/ios/iphoneos  # 这里需要确保在正确的目录下执行后续操作
+          cd ${{ steps.get_dir.outputs.working_dir }}
           mkdir -p Payload
           mv Runner.app Payload/
           zip -r Runner.ipa Payload
           rm -rf Payload
 
-      - name: Clean build artifacts (可选步骤，可根据实际情况决定是否保留，用于清理可能影响下次构建的残留文件)
-        run: flutter clean
-
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
           name: iOS_Build_Artifact
-          path: build/ios/iphoneos/Runner.ipa
+          path: ${{ steps.get_dir.outputs.working_dir }}/Runner.ipa
