@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'package:bujuan_music_api/api/user/entity/qr_check_entity.dart';
 import 'package:bujuan_music_api/bujuan_music_api.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
