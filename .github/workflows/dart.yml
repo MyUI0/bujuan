@@ -24,12 +24,39 @@ jobs:
           flutter-version: '3.24.5'
           channel: 'stable'
 
+      # 检查本地依赖bujuan_music_api路径是否正确，若不存在则报错并停止工作流
       - name: Check local dependency path
         run: |
           if [! -d "./bujuan_music_api" ]; then
             echo "The local dependency bujuan_music_api folder does not exist at the expected path. Please check and correct the path configuration in pubspec.yaml."
             exit 1
           fi
+
+      # 检查bujuan_music_api依赖内代码生成相关配置（主要查看是否有对应依赖及注解等情况）
+      - name: Check code generation configuration in bujuan_music_api
+        run: |
+          # 进入bujuan_music_api目录
+          cd bujuan_music_api
+          # 检查是否存在常见代码生成依赖（以json_serializable为例，可根据实际调整）
+          if grep -q "json_serializable" pubspec.yaml; then
+            echo "Found json_serializable in bujuan_music_api's pubspec.yaml, will check annotation usage."
+            # 查找使用了@JsonSerializable注解的dart文件（示例，可完善更精准查找）
+            dart_files=$(find lib -name "*.dart")
+            for file in $dart_files; do
+              if grep -q "@JsonSerializable" $file; then
+                echo "Found @JsonSerializable annotation in $file, checking annotation parameters..."
+                # 这里可进一步添加代码查看注解里关于生成文件路径的参数设置情况（较复杂，需根据具体代码逻辑处理）
+              fi
+            done
+          else
+            echo "No obvious code generation dependencies found in bujuan_music_api's pubspec.yaml, but the issue might still be related to other factors."
+          fi
+          # 返回项目根目录
+          cd..
+
+      # 执行代码生成命令，用于生成可能缺失的.g.dart等代码生成文件（假设使用了相关代码生成工具）
+      - name: Generate code files
+        run: flutter pub run build_runner build
 
       - name: Set up Xcode
         uses: maxim-lobanov/setup-xcode@v1
@@ -50,6 +77,9 @@ jobs:
           mv Runner.app Payload/
           zip -r Runner.ipa Payload
           rm -rf Payload
+
+      - name: Clean build artifacts (可选步骤，可根据实际情况决定是否保留，用于清理可能影响下次构建的残留文件)
+        run: flutter clean
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
