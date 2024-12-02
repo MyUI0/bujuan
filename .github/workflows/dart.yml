@@ -23,11 +23,7 @@ jobs:
         with:
           flutter-version: '3.24.5'
           channel: 'stable'
-          
-
-      # 执行代码生成命令，用于生成可能缺失的.g.dart等代码生成文件（假设使用了相关代码生成工具）
-      - name: Generate code files
-        run: flutter pub run build_runner build
+         
 
       - name: Set up Xcode
         uses: maxim-lobanov/setup-xcode@v1
