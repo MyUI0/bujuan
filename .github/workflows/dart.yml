@@ -24,6 +24,13 @@ jobs:
           flutter-version: '3.24.5'
           channel: 'stable'
 
+      - name: Check local dependency path
+        run: |
+          if [! -d "../bujuan_music_api" ]; then
+            echo "The local dependency bujuan_music_api folder does not exist at the expected path. Please check and correct the path configuration in pubspec.yaml."
+            exit 1
+          fi
+
       - name: Set up Xcode
         uses: maxim-lobanov/setup-xcode@v1
         with:
