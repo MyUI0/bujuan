@@ -1,0 +1,51 @@
+name: Flutter iOS Build (Unsigned IPA)
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+  workflow_dispatch:  # 添加手动触发工作流的配置
+
+jobs:
+  build:
+    runs-on: macos-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # 设置Dart环境，有助于后续获取Flutter版本相关操作
+      - name: Set up Dart
+        uses: dart-lang/setup-dart@v1
+        
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.24.5'
+          channel: 'stable'
+
+      - name: Set up Xcode
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: latest-stable
+
+      - name: Install dependencies
+        run: flutter pub get
+        
+      - name: Build iOS IPA (Unsigned)
+        run: flutter build ios --release --no-tree-shake-icons --no-codesign
+        working-directory:
+
+      - name: Package.app folder into IPA format
+        run: |
+          cd build/ios/iphoneos  # 这里需要确保在正确的目录下执行后续操作
+          mkdir -p Payload
+          mv Runner.app Payload/
+          zip -r Runner.ipa Payload
+          rm -rf Payload
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: iOS_Build_Artifact
+          path: build/ios/iphoneos/Runner.ipa
