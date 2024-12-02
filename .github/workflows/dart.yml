@@ -26,7 +26,7 @@ jobs:
 
       - name: Check local dependency path
         run: |
-          if [! -d "../bujuan_music_api" ]; then
+          if [! -d "./bujuan_music_api" ]; then
             echo "The local dependency bujuan_music_api folder does not exist at the expected path. Please check and correct the path configuration in pubspec.yaml."
             exit 1
           fi
