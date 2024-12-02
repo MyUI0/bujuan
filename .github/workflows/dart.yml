@@ -34,18 +34,28 @@ jobs:
         id: get_dir
         run: |
           WORKING_DIR=$(pwd)
-          echo "::set-output name=working_dir::$WORKING_DIR"
-
-      - name: Build iOS IPA (Unsigned)
-        run: flutter build ios --release --no-tree-shake-icons --no-codesign
-        working-directory: ${{ steps.get_dir.outputs.working_dir }}
+          echo "WORKING_DIR=$WORKING_DIR" >> $GITHUB_ENV
+          # 上面这行命令是将工作目录变量写入到环境文件中，供后续步骤使用
+        shell: /bin/bash -e {0}
+        env:
+          DART_HOME: /Users/runner/hostedtoolcache/dart/3.5.4/arm64
+          PUB_CACHE: /Users/runner/.pub-cache
+          FLUTTER_ROOT: /Users/runner/hostedtoolcache/flutter/stable-3.24.5-arm64
+          MD_APPLE_SDK_ROOT: /Applications/Xcode_16.1.app
 
       - name: Install dependencies
         run: flutter pub get
+        working-directory: ${{ env.WORKING_DIR }}
+   
+
+      - name: Build iOS IPA (Unsigned)
+        run: flutter build ios --release --no-tree-shake-icons --no-codesign
+        working-directory: ${{ env.WORKING_DIR }}
+
 
       - name: Package.app folder into IPA format
         run: |
-          cd ${{ steps.get_dir.outputs.working_dir }}
+          cd ${{ env.WORKING_DIR }}
           mkdir -p Payload
           mv Runner.app Payload/
           zip -r Runner.ipa Payload
@@ -55,4 +65,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: iOS_Build_Artifact
-          path: ${{ steps.get_dir.outputs.working_dir }}/Runner.ipa
+          path: ${{ env.WORKING_DIR }}/Runner.ipa
